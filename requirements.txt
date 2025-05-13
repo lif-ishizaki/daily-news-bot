@@ -1,0 +1,8 @@
+feedparser
+newspaper3k
+requests
+transformers
+torch
+sentencepiece
+tldextract
+lxml[html_clean]
