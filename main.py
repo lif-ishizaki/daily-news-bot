@@ -36,8 +36,8 @@ def summarize(text: str) -> str:
     if not hasattr(summarize, "pipe"):
         summarize.pipe = pipeline(
             "summarization",
-            model="sonoisa/t5-base-japanese",
-            tokenizer="sonoisa/t5-base-japanese",
+            model="tsmatz/mt5_summarize_japanese",
+            tokenizer="tsmatz/mt5_summarize_japanese",
             framework="pt",
             device=-1,
             max_length=256,
