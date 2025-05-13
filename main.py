@@ -40,8 +40,11 @@ def summarize(text: str) -> str:
             tokenizer="tsmatz/mt5_summarize_japanese",
             framework="pt",
             device=-1,
-            max_length=256,
-            min_length=60
+            max_length=512,
+            min_length=120,
+            do_sample=False,
+            num_beams=4,
+            length_penalty=2.0
         )
     result = summarize.pipe(text)
     return result[0]["summary_text"]
