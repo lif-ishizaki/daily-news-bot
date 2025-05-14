@@ -6,4 +6,3 @@ torch
 sentencepiece
 tldextract
 lxml[html_clean]
-protobuf
