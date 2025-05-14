@@ -11,7 +11,9 @@ FEED_URLS = [
     "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml",
     "https://news.yahoo.co.jp/rss/categories/it.xml"
 ]
-STATE_FILE = "posted.json"
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATE_FILE = os.path.join(BASE_DIR, "posted.json")
 
 def load_posted() -> set:
     if os.path.exists(STATE_FILE):
