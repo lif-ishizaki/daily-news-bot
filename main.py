@@ -58,22 +58,10 @@ def summarize(text: str) -> str:
             min_length=120,
             do_sample=False,
             num_beams=6,
-            length_penalty=1.0,
-            no_repeat_ngram_size=3,
-            early_stopping=True
+            length_penalty=2.0
         )
-    CHUNK_SIZE = 400
-    chunks = [text[i:i+CHUNK_SIZE] for i in range(0, len(text), CHUNK_SIZE)]
-    partials = []
-    for chunk in chunks:
-        out = summarize.pipe(f"以下を要約してください：\n\n{chunk}")
-        partials.append(out[0]["summary_text"])
-    combined = " ".join(partials)
-    if len(chunks) > 1:
-        final = summarize.pipe(combined)
-        return final[0]["summary_text"]
-    else:
-        return partials[0]
+    result = summarize.pipe(text)
+    return result[0]["summary_text"]
 
 def notify_slack(items) -> bool:
     today = datetime.date.today().strftime("%Y-%m-%d")
