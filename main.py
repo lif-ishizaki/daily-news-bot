@@ -47,10 +47,11 @@ def fetch_all_entries():
 
 def summarize(text: str) -> str:
     if not hasattr(summarize, "pipe"):
+        model_name = "sonoisa/t5-base-japanese"
         summarize.pipe = pipeline(
             "summarization",
-            model="tsmatz/mt5_summarize_japanese",
-            tokenizer="tsmatz/mt5_summarize_japanese",
+            model=model_name,
+            tokenizer=model_name,
             framework="pt",
             device=-1,
             max_length=256,
