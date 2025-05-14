@@ -60,15 +60,11 @@ def summarize(text: str) -> str:
         "以下の記事を200〜300文字程度で要約してください。"\
         "事実を追加・改変せず、重要な数値・固有名詞は保持してください。" + text
     )
-
     tokens = summarize.pipe.tokenizer.encode(prompt, return_tensors="pt")
-    max_len = min(240, int(len(tokens[0]) * 0.25)) or 120
-    min_len = int(max_len * 0.6)
-
     result = summarize.pipe(
         prompt,
-        max_length=max_len,
-        min_length=min_len,
+        max_length=300,
+        min_length=200,
         num_beams=10,
         no_repeat_ngram_size=3,
         length_penalty=1.2,
