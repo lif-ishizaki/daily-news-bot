@@ -54,14 +54,23 @@ def summarize(text: str) -> str:
             tokenizer=model_name,
             framework="pt",
             device=-1,
-            max_length=256,
-            min_length=120,
-            do_sample=False,
-            num_beams=6,
-            length_penalty=2.0
         )
-    result = summarize.pipe(text)
-    return result[0]["summary_text"]
+
+    tokens = summarize.pipe.tokenizer.encode(text, return_tensors="pt")
+    max_len = min(256, int(len(tokens[0]) * 0.3)) or 64
+    min_len = int(max_len * 0.5)
+
+    result = summarize.pipe(
+        text,
+        max_length=max_len,
+        min_length=min_len,
+        num_beams=8,
+        length_penalty=1.3,
+        repetition_penalty=1.1,
+        do_sample=False,
+    )
+    return result[0]["summary_text"].strip()
+
 
 def notify_slack(items) -> bool:
     today = datetime.date.today().strftime("%Y-%m-%d")
