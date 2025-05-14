@@ -1,4 +1,5 @@
 import os
+import json
 import datetime
 import feedparser
 import requests
@@ -10,6 +11,17 @@ FEED_URLS = [
     "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml",
     "https://news.yahoo.co.jp/rss/categories/it.xml"
 ]
+STATE_FILE = "posted.json"
+
+def load_posted() -> set:
+    if os.path.exists(STATE_FILE):
+        with open(STATE_FILE, encoding="utf-8") as f:
+            return set(json.load(f))
+    return set()
+
+def save_posted(posted: set):
+    with open(STATE_FILE, "w", encoding="utf-8") as f:
+        json.dump(list(posted), f, ensure_ascii=False, indent=2)
 
 def get_hatena_count(url: str) -> int:
     api = f"https://api.b.st-hatena.com/entry.count?url={url}"
@@ -83,15 +95,24 @@ def notify_slack(items) -> bool:
     return resp.ok
 
 def main():
+    posted = load_posted()
     entries = fetch_entries()
+
+    new_entries = [e for e in entries if e["link"] not in posted]
+    if not new_entries:
+        print("No new items to post.")
+        return
+
     results = []
-    for e in entries:
+    for e in new_entries:
         art = Article(e["link"])
         art.download()
         art.parse()
         summary = summarize(art.text)
         results.append({**e, "summary": summary})
+        posted.add(e["link"])
     notify_slack(results)
+    save_posted(posted)
 
 if __name__ == "__main__":
     main()

@@ -11,6 +11,9 @@ jobs:
     steps:
       - name: チェックアウト
         uses: actions/checkout@v3
+        with:
+          persist-credentials: true
+          fetch-depth: 0
 
       - name: Python セットアップ
         uses: actions/setup-python@v4
@@ -27,3 +30,13 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: python main.py
+
+      - name: posted.json をコミットしてプッシュ
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git diff --quiet ${GITHUB_WORKSPACE}/posted.json || (
+            git add posted.json
+            git commit -m "Update posted.json"
+            git push
+          )
