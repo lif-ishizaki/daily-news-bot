@@ -33,18 +33,17 @@ def get_hatena_count(url: str) -> int:
     except:
         return 0
 
-def fetch_entries():
+def fetch_all_entries():
     entries = []
     for url in FEED_URLS:
         feed = feedparser.parse(url)
         for e in feed.entries:
-            count = get_hatena_count(e.link)
             entries.append({
                 "title": e.title,
                 "link": e.link,
-                "hatena": count
+                "hatena": get_hatena_count(e.link)
             })
-    return sorted(entries, key=lambda x: x["hatena"], reverse=True)[:3]
+    return entries
 
 def summarize(text: str) -> str:
     if not hasattr(summarize, "pipe"):
@@ -97,10 +96,12 @@ def notify_slack(items) -> bool:
     return resp.ok
 
 def main():
-    posted = load_posted()
-    entries = fetch_entries()
+    posted      = load_posted()
+    all_entries = fetch_all_entries()
 
-    new_entries = [e for e in entries if e["link"] not in posted]
+    candidates  = [e for e in all_entries if e["link"] not in posted]
+    new_entries = sorted(candidates, key=lambda x: x["hatena"], reverse=True)[:3]
+
     if not new_entries:
         print("No new items to post.")
         return
