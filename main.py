@@ -48,8 +48,9 @@ def fetch_all_entries():
 
 def summarize(text: str) -> str:
     system_prompt = (
-        "あなたは日本語ニュース編集者です。"
-        "以下の記事本文を 200〜300 文字で要約してください。"
+        "あなたは日本の新聞社で10年以上働くベテラン編集者です。"
+        "読者が3分で理解できるように、記事本文を要点だけ抽出してください。"
+        "出力は300字以内の自然な日本語で、主語の省略を避け、時制を統一してください。"
     )
     resp = requests.post(
         "https://openrouter.ai/api/v1/chat/completions",
@@ -58,7 +59,7 @@ def summarize(text: str) -> str:
             "Content-Type":  "application/json",
         },
         data=json.dumps({
-            "model": "mistralai/devstral-small:free",
+            "model": "shisa-ai/shisa-v2-llama3.3-70b:free",
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user",   "content": text}
