@@ -4,9 +4,10 @@ import datetime
 import feedparser
 import requests
 from newspaper import Article
-from transformers import pipeline
 
 SLACK_WEBHOOK_URL = os.environ["SLACK_WEBHOOK_URL"]
+OPENROUTER_API_KEY  = os.environ["OPENROUTER_API_KEY"]
+
 FEED_URLS = [
     "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml",
     "https://news.yahoo.co.jp/rss/categories/it.xml"
@@ -46,33 +47,29 @@ def fetch_all_entries():
     return entries
 
 def summarize(text: str) -> str:
-    if not hasattr(summarize, "pipe"):
-        model_name = "tsmatz/mt5_summarize_japanese"
-        summarize.pipe = pipeline(
-            "summarization",
-            model=model_name,
-            tokenizer=model_name,
-            framework="pt",
-            device=-1,
-        )
-
-    prompt = (
-        "以下の記事を200〜300文字程度で要約してください。"\
-        "事実を追加・改変せず、重要な数値・固有名詞は保持してください。" + text
+    system_prompt = (
+        "あなたは日本語ニュース編集者です。"
+        "以下の記事本文を 200〜300 文字で要約してください。"
     )
-    tokens = summarize.pipe.tokenizer.encode(prompt, return_tensors="pt")
-    result = summarize.pipe(
-        prompt,
-        max_length=300,
-        min_length=200,
-        num_beams=10,
-        no_repeat_ngram_size=3,
-        length_penalty=1.2,
-        repetition_penalty=1.05,
-        early_stopping=True,
-        do_sample=False,
+    resp = requests.post(
+        "https://openrouter.ai/api/v1/chat/completions",
+        headers={
+            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+            "Content-Type":  "application/json",
+        },
+        data=json.dumps({
+            "model": "mistralai/devstral-small:free",
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user",   "content": text}
+            ],
+            "max_tokens": 240,
+        }),
+        timeout=30,
     )
-    return result[0]["summary_text"].strip()
+    resp.raise_for_status()
+    summary = resp.json()["choices"][0]["message"]["content"]
+    return summary.strip()
 
 
 def notify_slack(items) -> bool:
