@@ -68,7 +68,7 @@ def summarize(text: str, max_retries: int = 3) -> str:
                     "Content-Type":  "application/json",
                 },
                 data=json.dumps({
-                    "model": "shisa-ai/shisa-v2-llama3.3-70b:free",
+                    "model": "google/gemini-2.0-flash-exp:free",
                     "messages": [
                         {"role": "system", "content": system_prompt},
                         {"role": "user",   "content": text}
@@ -82,7 +82,7 @@ def summarize(text: str, max_retries: int = 3) -> str:
             summary = resp.json()["choices"][0]["message"]["content"]
             return summary.strip()
 
-        except (requests.exceptions.ChunkedEncodingError, 
+        except (requests.exceptions.ChunkedEncodingError,
                 requests.exceptions.ConnectionError,
                 requests.exceptions.Timeout,
                 requests.exceptions.RequestException) as e:
