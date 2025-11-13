@@ -75,8 +75,8 @@ def summarize(text: str, max_retries: int = 3) -> str:
                     ],
                     "max_tokens": 240,
                 }),
-                timeout=60,  # タイムアウトを長くする
-                stream=False  # ストリーミングを無効にする
+                timeout=60,
+                stream=False
             )
             resp.raise_for_status()
             summary = resp.json()["choices"][0]["message"]["content"]
@@ -88,7 +88,7 @@ def summarize(text: str, max_retries: int = 3) -> str:
                 requests.exceptions.RequestException) as e:
             print(f"API呼び出しエラー (試行 {attempt + 1}): {e}")
             if attempt < max_retries - 1:
-                wait_time = (attempt + 1) * 2  # 指数バックオフ
+                wait_time = (attempt + 1) * 2
                 print(f"{wait_time}秒待機してからリトライします...")
                 time.sleep(wait_time)
             else:
@@ -173,7 +173,6 @@ def main():
         except Exception as ex:
             print(f"記事の処理中にエラーが発生しました: {ex}")
             print(f"スキップします: {e['link']}")
-            # エラーが発生した記事もスキップして続行
             results.append({**e, "summary": "記事の処理中にエラーが発生しました。"})
             posted.add(e["link"])
 
