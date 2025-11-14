@@ -62,7 +62,7 @@ def summarize(text: str, max_retries: int = 3) -> str:
         try:
             print(f"API呼び出し試行 {attempt + 1}/{max_retries}")
             resp = requests.post(
-                "https://openrouter.ai/api/v1/chat/completions",
+                "https://openrouter.ai/api/v1",
                 headers={
                     "Authorization": f"Bearer {OPENROUTER_API_KEY}",
                     "Content-Type":  "application/json",
