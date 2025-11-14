@@ -62,21 +62,22 @@ def summarize(text: str, max_retries: int = 3) -> str:
         try:
             print(f"API呼び出し試行 {attempt + 1}/{max_retries}")
             resp = requests.post(
-                "https://openrouter.ai/api/v1",
+                "https://openrouter.ai/api/v1/chat/completions",
                 headers={
                     "Authorization": f"Bearer {OPENROUTER_API_KEY}",
                     "Content-Type":  "application/json",
+                    "HTTP-Referer": "https://github.com/daily-news-bot",
+                    "X-Title": "Daily News Bot",
                 },
-                data=json.dumps({
+                json={
                     "model": "google/gemini-2.0-flash-exp:free",
                     "messages": [
                         {"role": "system", "content": system_prompt},
                         {"role": "user",   "content": text}
                     ],
                     "max_tokens": 240,
-                }),
-                timeout=60,
-                stream=False
+                },
+                timeout=60
             )
             resp.raise_for_status()
             summary = resp.json()["choices"][0]["message"]["content"]
